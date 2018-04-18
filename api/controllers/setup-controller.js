@@ -1,7 +1,7 @@
 'use strict'
 
 var auth = require("../helpers/auth");
-var fs = require('fs-extra');
+var fs = require('fs');
 
 const { execSync } = require('child_process');
 
@@ -22,7 +22,7 @@ exports.sendDetailsPost = function (args, res, next) {
 
     if(jwttoken && wifissid && wifipassword) {
 
-        fs.copySync('/etc/wpa_supplicant/wpa_supplicant.conf.orig', '/etc/wpa_supplicant/wpa_supplicant.conf');
+        execSync('cp /etc/wpa_supplicant/wpa_supplicant.conf.orig /etc/wpa_supplicant/wpa_supplicant.conf');
 
         fs.appendFileSync('/etc/wpa_supplicant/wpa_supplicant.conf',
             'network={\n' +
