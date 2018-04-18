@@ -99,7 +99,7 @@ var checkWifiConnected = function(args, res, next, count) {
             //TODO: Verify JWT is correct and internet connection works by making request to central server
         } else {
             if(count < 30) {
-                setTimeout(checkWifiConnected(args, res, next, ++count));
+                setTimeout(checkWifiConnected(args, res, next, ++count), 1000);
             } else {
                 status = 2;
             }
