@@ -1,0 +1,90 @@
+---
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "SmartLockSomethingAPI"
+host: "192.168.4.1:3000"
+basePath: "/api/v1"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /setup/sendDetails:
+    post:
+      tags:
+      - "setup"
+      description: ""
+      operationId: "sendDetailsPost"
+      parameters:
+      - in: "body"
+        name: "setupDetails"
+        required: true
+        schema:
+          $ref: "#/definitions/SetupDetails"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/DeviceToken"
+      x-swagger-router-controller: "setup-controller"
+  /setup/getStatus:
+    get:
+      tags:
+      - "setup"
+      description: ""
+      operationId: "getStatusGet"
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/SetupStatus"
+      x-swagger-router-controller: "setup-controller"
+definitions:
+  SetupDetails:
+    type: "object"
+    properties:
+      jwttoken:
+        type: "string"
+        example: "data.encrypteddata.signedhash"
+      wifissid:
+        type: "string"
+        example: "MyWifiSSID"
+      wifipassword:
+        type: "string"
+        example: "MyWifiPassword"
+    example:
+      jwttoken: "data.encrypteddata.signedhash"
+      wifissid: "MyWifiSSID"
+      wifipassword: "MyWifiPassword"
+  SetupStatus:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "waiting"
+        - "testing"
+        - "failed"
+        - "completed"
+      details:
+        type: "string"
+    example:
+      details: "details"
+      status: "waiting"
+  DeviceToken:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+    example:
+      token: "token"
+  Error:
+    type: "object"
+    properties:
+      message:
+        type: "string"
