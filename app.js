@@ -11,22 +11,14 @@ var dbHost = "127.0.0.1";
 var dbPort = "27017";
 var dbName = "smartlockcore";
 
-//mongoose.connect('mongodb://' + dbHost + ':' + dbPort + '/' + dbName);
-//var model = require('./api/models/models');
+mongoose.connect('mongodb://' + dbHost + ':' + dbPort + '/' + dbName);
+var models = require('./api/models/models');
 
-var auth = require("./api/helpers/auth");
 var swaggerConfig = YAML.load("./api/swagger/swagger.yaml");
 
 swaggerTools.initializeMiddleware(swaggerConfig, function (middleware) {
     //Serves the Swagger UI on /docs
-    app.use(middleware.swaggerMetadata()); // needs to go BEFORE swaggerSecurity
-
-    app.use(
-        middleware.swaggerSecurity({
-            //manage token function in the 'auth' module
-            Bearer: auth.verifyToken
-        })
-    );
+    app.use(middleware.swaggerMetadata());
 
     var routerConfig = {
         controllers: "./api/controllers",

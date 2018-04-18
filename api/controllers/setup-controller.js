@@ -1,11 +1,11 @@
 'use strict'
 
-var auth = require("../helpers/auth");
 var fs = require('fs');
 
-const { execSync } = require('child_process');
-
+const { exec } = require('child_process');
 var mongoose = require('mongoose');
+
+var Settings = mongoose.model('Settings');
 
 /**
  * 0 = waiting
@@ -15,23 +15,44 @@ var mongoose = require('mongoose');
  */
 var status = 0;
 
+var jwttoken;
+var wifissid;
+var wifipassword;
+
 exports.sendDetailsPost = function (args, res, next) {
-    var jwttoken = args.body.jwttoken;
-    var wifissid = args.body.wifissid;
-    var wifipassword = args.body.wifipassword;
+    jwttoken = args.body.jwttoken;
+    wifissid = args.body.wifissid;
+    wifipassword = args.body.wifipassword;
 
     if(jwttoken && wifissid && wifipassword) {
 
-        execSync('cp /etc/wpa_supplicant/wpa_supplicant.conf.orig /etc/wpa_supplicant/wpa_supplicant.conf');
+        status = 1;
 
-        fs.appendFileSync('/etc/wpa_supplicant/wpa_supplicant.conf',
-            'network={\n' +
-            '       ssid=\"' + wifissid + '\"\n' +
-            '       psk=\"' + wifipassword + '\"\n' +
-            '}'
-        );
+        resetWpaSupplicantConfig(args, res, next);
 
-        execSync('wpa_cli -i wlan0 reconfigure');
+/*        exec('cp /etc/wpa_supplicant/wpa_supplicant.conf.orig /etc/wpa_supplicant/wpa_supplicant.conf', function(err, stdout, stderr) {
+            if(err) status = 2;
+            fs.appendFile('/etc/wpa_supplicant/wpa_supplicant.conf',
+                'network={\n' +
+                '       ssid=\"' + wifissid + '\"\n' +
+                '       psk=\"' + wifipassword + '\"\n' +
+                '}',
+                function(err) {
+                    if(err) status = 2;
+                    exec('wpa_cli -i wlan0 reconfigure', function(err, stdout, stderr) {
+                        if(err) status = 2;
+                        var count = 0;
+                        exec('wpa_cli -i wlan0 status', function(err, stdout, stderr) {
+                            if(err) console.log("Hmmmm");
+                            if(stdout.indexOf("ip_address") > -1) {
+                                //TODO: Verify JWT is correct and internet connection works by making call to central server
+
+                            }
+                        });
+                    });
+                }
+            );
+        });*/
 
         var response = {error: "Completed"};
         res.writeHead(200, {"Content-Type": "application/json"});
@@ -43,11 +64,82 @@ exports.sendDetailsPost = function (args, res, next) {
     }
 };
 
+var resetWpaSupplicantConfig = function (args, res, next) {
+    exec('cp /etc/wpa_supplicant/wpa_supplicant.conf.orig /etc/wpa_supplicant/wpa_supplicant.conf', function(err, stdout, stderr) {
+        if(err) status = 2;
+        else appendToWpaSupplicant(args, res, next);
+    });
+};
+
+var appendToWpaSupplicant = function(args, res, next) {
+    fs.appendFile('/etc/wpa_supplicant/wpa_supplicant.conf',
+        'network={\n' +
+        '       ssid=\"' + wifissid + '\"\n' +
+        '       psk=\"' + wifipassword + '\"\n' +
+        '}',
+        function(err) {
+            if (err) status = 2;
+            else reconfigureWifi(args, res, next);
+        }
+    );
+};
+
+var reconfigureWifi = function(args, res, next) {
+    exec('wpa_cli -i wlan0 reconfigure', function(err, stdout, stderr) {
+        if(err) status = 2;
+        else checkWifiConnected(args, res, next, 0);
+    });
+};
+
+var checkWifiConnected = function(args, res, next, count) {
+    exec('wpa_cli -i wlan0 status', function(err, stdout, stderr) {
+        if(err) status = 2;
+        else if(stdout.indexOf("ip_address") > -1) {
+            status = 3
+            //TODO: Verify JWT is correct and internet connection works by making request to central server
+        } else {
+            if(count < 30) {
+                setTimeout(checkWifiConnected(args, res, next, ++count));
+            } else {
+                status = 2;
+            }
+        }
+    });
+};
+
 exports.getStatusGet = function (args, res, next) {
-    var response = {
-        status: "waiting",
-        details: "Waiting for setup details to be sent."
-    };
-    res.writeHead(200, {"Content-Type": "application/json"});
+    var response = {error: "Error: Server status was unknown."};
+    var statusCode = (status <= 3 && status >= 0) ? 200 : 500;
+    switch(status) {
+        case 0: {
+            response = {
+                status: "waiting",
+                details: "Waiting for user to send credentials."
+            };
+            break;
+        }
+        case 1: {
+            response = {
+                status: "testing",
+                details: "Testing the provided credentials to ensure validity."
+            };
+            break;
+        }
+        case 2: {
+            response = {
+                status: "failed",
+                details: "Provided details were incorrect or the selected Wi-Fi was out of range."
+            };
+            break;
+        }
+        case 3: {
+            response = {
+                status: "completed",
+                details: "The provided details were correct and the device is ready to complete setup."
+            };
+            break;
+        }
+    }
+    res.writeHead(statusCode, {"Content-Type": "application/json"});
     return res.end(JSON.stringify(response));
 };
