@@ -29,7 +29,7 @@ swaggerTools.initializeMiddleware(swaggerConfig, function (middleware) {
 
     app.use(middleware.swaggerUi());
 
-    app.listen(3000, '192.168.4.1', function () {
+    app.listen(3000, '127.0.0.1', function () {
         console.log("Started server on port 3000");
     });
 });
