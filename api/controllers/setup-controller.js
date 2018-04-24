@@ -61,14 +61,14 @@ var appendToWpaSupplicant = function(args, res, next) {
 };
 
 var reconfigureWifi = function(args, res, next) {
-    exec('wpa_cli -i wlan0 reconfigure', function(err, stdout, stderr) {
+    exec('sudo wpa_cli -i wlan0 reconfigure', function(err, stdout, stderr) {
         if(err) status = 2;
         else checkWifiConnected(args, res, next, 0);
     });
 };
 
 var checkWifiConnected = function(args, res, next, count) {
-    exec('wpa_cli -i wlan0 status', function(err, stdout, stderr) {
+    exec('sudo wpa_cli -i wlan0 status', function(err, stdout, stderr) {
         if(err) status = 2;
         else if(stdout.indexOf("ip_address") > -1) {
             status = 3
