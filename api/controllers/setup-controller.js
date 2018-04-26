@@ -19,7 +19,6 @@ var Settings = mongoose.model('Settings');
  */
 var status = 0;
 
-var jwttoken;
 var wifissid;
 var wifipassword;
 
@@ -84,11 +83,11 @@ var checkWifiConnected = function(args, res, next, count) {
                     let uuid = task.uuid;
                     request
                         .post('https://smartlockapp.zackpollard.pro/api/v1/device/register')
-                        .send({"name": "SMARTLOCK-CORE-A7C9F1", "uuid": uuid})
-                        .end(function(res) {
-                            if(res.status !== 200) {
+                        .send({name: "SMARTLOCK-CORE-A7C9F1", uuid: uuid})
+                        .set('Accept', 'application/json')
+                        .end((err, res) => {
+                            if(err || err.status !== 200 || !res || res.status !== 200) {
                                 status = 2;
-                                console.log("non-200 status-code")
                             } else {
                                 Settings.findOneAndUpdate({}, {jwttoken: res.body.token}, {
                                     new: true,
