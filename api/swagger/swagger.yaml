@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: "SmartLockSomethingAPI"
+  title: "RPiSetupAPI"
 host: "192.168.4.1"
 basePath: "/api/v1/setup"
 schemes:
