@@ -10,8 +10,7 @@
 
     var settings = new Schema({
         jwttoken        : {type : String},
-        wifissid        : {type : String},
-        wifipassword    : {type : String}
+        uuid            : {type : String}
     });
 
     module.exports.Settings = mongoose.model('Settings', settings);

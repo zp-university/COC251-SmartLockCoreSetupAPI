@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: "RPiSetupAPI"
+  title: "RPiCoreSetupAPI"
 host: "192.168.4.1"
 basePath: "/api/v1/setup"
 schemes:
@@ -29,7 +29,7 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/DeviceToken"
+            $ref: "#/definitions/DeviceUuid"
       x-swagger-router-controller: "setup-controller"
   /status:
     get:
@@ -48,9 +48,6 @@ definitions:
   SetupDetails:
     type: "object"
     properties:
-      jwttoken:
-        type: "string"
-        example: "data.encrypteddata.signedhash"
       wifissid:
         type: "string"
         example: "MyWifiSSID"
@@ -76,10 +73,10 @@ definitions:
     example:
       details: "details"
       status: "waiting"
-  DeviceToken:
+  DeviceUuid:
     type: "object"
     properties:
-      token:
+      uuid:
         type: "string"
     example:
       token: "token"

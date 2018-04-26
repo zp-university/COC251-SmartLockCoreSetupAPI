@@ -2,6 +2,10 @@
 
 var fs = require('fs');
 
+const uuidv4 = require('uuid/v4');
+
+var request = require('superagent');
+
 const { exec } = require('child_process');
 var mongoose = require('mongoose');
 
@@ -71,8 +75,38 @@ var checkWifiConnected = function(args, res, next, count) {
     exec('sudo wpa_cli -i wlan0 status', function(err, stdout, stderr) {
         if(err) status = 2;
         else if(stdout.indexOf("ip_address") > -1) {
-            status = 3
-            //TODO: Verify JWT is correct and internet connection works by making request to central server
+            Settings.findOneAndUpdate({}, {uuid: uuidv4()}, {
+                new: true,
+                upsert: true
+            }, function(err, task) {
+                if(err) {
+                    status = 2;
+                } else {
+                    let uuid = task.uuid;
+                    request
+                        .post('https://smartlockapp.zackpollard.pro/api/v1/auth/device/register')
+                        .send({"name": "SMARTLOCK-CORE-A7C9F1", "uuid": uuid})
+                        .then(function(res) {
+                            if(res.status !== 200) {
+                                status = 2;
+                            } else {
+                                Settings.findOneAndUpdate({}, {jwttoken: res.body.token}, {
+                                    new: true,
+                                    upsert: true
+                                }, function(err, task) {
+                                    if(err) {
+                                        status = 2;
+                                    } else {
+                                        status = 3;
+                                        let response = {uuid: uuid};
+                                        res.writeHead(200, {"Content-Type": "application/json"});
+                                        res.end(JSON.stringify(response));
+                                    }
+                                });
+                            }
+                        });
+                }
+            })
         } else {
             if(count < 30) {
                 setTimeout(checkWifiConnected, 1000, args, res, next, ++count);
@@ -117,5 +151,12 @@ exports.getStatusGet = function (args, res, next) {
         }
     }
     res.writeHead(statusCode, {"Content-Type": "application/json"});
-    return res.end(JSON.stringify(response));
+    res.end(JSON.stringify(response));
+
+    if(status === 3) {
+        exec('sudo systemctl stop dnsmasq', function(err, stdout, stderr) {
+        });
+        exec('sudo systemctl stop hostapd', function(err, stdout, stderr) {
+        });
+    }
 };
