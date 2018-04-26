@@ -152,7 +152,7 @@ exports.getStatusGet = function (args, res, next) {
     res.end(JSON.stringify(response));
 
     if (status === 3) {
-        setTimeout(new function() {
+        setTimeout(function() {
             exec('sudo systemctl stop dnsmasq', function (err, stdout, stderr) {
             });
             exec('sudo systemctl stop hostapd', function (err, stdout, stderr) {
