@@ -24,11 +24,10 @@ var wifissid;
 var wifipassword;
 
 exports.sendDetailsPost = function (args, res, next) {
-    jwttoken = args.body.jwttoken;
     wifissid = args.body.wifissid;
     wifipassword = args.body.wifipassword;
 
-    if(jwttoken && wifissid && wifipassword) {
+    if(wifissid && wifipassword) {
 
         status = 1;
 
