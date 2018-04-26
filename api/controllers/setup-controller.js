@@ -31,10 +31,6 @@ exports.sendDetailsPost = function (args, res, next) {
         status = 1;
 
         resetWpaSupplicantConfig(args, res, next);
-
-        var response = {error: "Completed"};
-        res.writeHead(200, {"Content-Type": "application/json"});
-        return res.end(JSON.stringify(response));
     } else {
         var response = {error: "Error: Bad Request"};
         res.writeHead(400, {"Content-Type": "application/json"});

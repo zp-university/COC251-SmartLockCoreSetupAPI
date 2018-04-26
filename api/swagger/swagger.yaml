@@ -55,7 +55,6 @@ definitions:
         type: "string"
         example: "MyWifiPassword"
     example:
-      jwttoken: "data.encrypteddata.signedhash"
       wifissid: "MyWifiSSID"
       wifipassword: "MyWifiPassword"
   SetupStatus:
