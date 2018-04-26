@@ -151,12 +151,12 @@ exports.getStatusGet = function (args, res, next) {
     res.writeHead(statusCode, {"Content-Type": "application/json"});
     res.end(JSON.stringify(response));
 
-    setTimeout(new function() {
-        if (status === 3) {
+    if (status === 3) {
+        setTimeout(new function() {
             exec('sudo systemctl stop dnsmasq', function (err, stdout, stderr) {
             });
             exec('sudo systemctl stop hostapd', function (err, stdout, stderr) {
             });
-        }
-    }, 5000);
+        }, 5000);
+    }
 };
