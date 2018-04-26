@@ -86,7 +86,7 @@ var checkWifiConnected = function(args, res, next, count) {
                         .send({name: "SMARTLOCK-CORE-A7C9F1", uuid: uuid})
                         .set('Accept', 'application/json')
                         .end((err, res) => {
-                            if(err || err.status !== 200 || !res || res.status !== 200) {
+                            if(err || !res || res.status !== 200) {
                                 status = 2;
                             } else {
                                 Settings.findOneAndUpdate({}, {jwttoken: res.body.token}, {
