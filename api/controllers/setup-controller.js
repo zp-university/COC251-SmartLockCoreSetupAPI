@@ -83,11 +83,12 @@ var checkWifiConnected = function(args, res, next, count) {
                 } else {
                     let uuid = task.uuid;
                     request
-                        .post('https://smartlockapp.zackpollard.pro/api/v1/auth/device/register')
+                        .post('https://smartlockapp.zackpollard.pro/api/v1/device/register')
                         .send({"name": "SMARTLOCK-CORE-A7C9F1", "uuid": uuid})
-                        .then(function(res) {
+                        .end(function(res) {
                             if(res.status !== 200) {
                                 status = 2;
+                                console.log("non-200 status-code")
                             } else {
                                 Settings.findOneAndUpdate({}, {jwttoken: res.body.token}, {
                                     new: true,
@@ -95,11 +96,13 @@ var checkWifiConnected = function(args, res, next, count) {
                                 }, function(err, task) {
                                     if(err) {
                                         status = 2;
+                                        console.log("Mongo err");
+                                        console.log(err);
                                     } else {
                                         status = 3;
                                         let response = {uuid: uuid};
                                         res.writeHead(200, {"Content-Type": "application/json"});
-                                        res.end(JSON.stringify(response));
+                                        return res.end(JSON.stringify(response));
                                     }
                                 });
                             }
@@ -115,6 +118,7 @@ var checkWifiConnected = function(args, res, next, count) {
         }
     });
 };
+
 
 exports.getStatusGet = function (args, res, next) {
     var response = {error: "Error: Server status was unknown."};
