@@ -81,11 +81,11 @@ var checkWifiConnected = function(args, res, next, count) {
                         .post('https://smartlockapp.zackpollard.pro/api/v1/device/register')
                         .send({name: "SMARTLOCK-CORE-A7C9F1", uuid: uuid})
                         .set('Accept', 'application/json')
-                        .end((err, res) => {
-                            if(err || !res || res.status !== 200) {
+                        .end((err, response) => {
+                            if(err || !response || response.status !== 200) {
                                 status = 2;
                             } else {
-                                Settings.findOneAndUpdate({}, {jwttoken: res.body.token}, {
+                                Settings.findOneAndUpdate({}, {jwttoken: response.body.token}, {
                                     new: true,
                                     upsert: true
                                 }, function(err, task) {
