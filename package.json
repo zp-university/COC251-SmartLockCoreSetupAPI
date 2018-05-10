@@ -11,7 +11,8 @@
     "swagger-tools": "0.10.1",
     "validator": "7.0.0",
     "yamljs": "0.2.9",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "rpio": "^0.9.21"
   },
   "engines": {
     "node": "7.7.0"
