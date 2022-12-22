@@ -6,7 +6,7 @@
     "bcrypt-nodejs": "0.0.3",
     "express": "4.12.3",
     "fs-extra": "^5.0.0",
-    "jsonwebtoken": "7.3.0",
+    "jsonwebtoken": "9.0.0",
     "mongoose": "^4.13.0",
     "swagger-tools": "0.10.1",
     "validator": "7.0.0",
